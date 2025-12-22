@@ -47,6 +47,49 @@ public class YdbQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : 
         return tableExpression;
     }
 
+    protected override Expression VisitTableBase(TableExpressionBase tableExpressionBase)
+    {
+        return tableExpressionBase switch
+        {
+            YdbIndexTableExpression indexTableExpression => VisitIndexTable(indexTableExpression),
+            _ => base.VisitTableBase(tableExpressionBase)
+        };
+    }
+
+    protected virtual Expression VisitIndexTable(YdbIndexTableExpression indexTableExpression)
+    {
+        if (SkipAliases)
+        {
+            if (!string.IsNullOrEmpty(indexTableExpression.Schema))
+            {
+                Sql.Append(SqlGenerationHelper.DelimitIdentifier(indexTableExpression.Schema))
+                    .Append(".");
+            }
+
+            Sql.Append(SqlGenerationHelper.DelimitIdentifier(indexTableExpression.Name));
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(indexTableExpression.Schema))
+            {
+                Sql.Append(SqlGenerationHelper.DelimitIdentifier(indexTableExpression.Schema))
+                    .Append(".");
+            }
+
+            Sql.Append(SqlGenerationHelper.DelimitIdentifier(indexTableExpression.Name))
+                .Append(" VIEW ")
+                .Append(SqlGenerationHelper.DelimitIdentifier(indexTableExpression.IndexName));
+
+            if (indexTableExpression.Alias != null)
+            {
+                Sql.Append(" AS ")
+                    .Append(SqlGenerationHelper.DelimitIdentifier(indexTableExpression.Alias));
+            }
+        }
+
+        return indexTableExpression;
+    }
+
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
     {
         SkipAliases = true;

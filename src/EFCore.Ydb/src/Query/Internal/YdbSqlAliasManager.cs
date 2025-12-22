@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using EntityFrameworkCore.Ydb.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -69,6 +70,7 @@ public class YdbSqlAliasManager : SqlAliasManager
                 TableExpression t => VisitTable(t),
                 SelectExpression selectExpression => VisitSelect(selectExpression),
                 LeftJoinExpression leftJoinExpression => VisitLeftJoin(leftJoinExpression),
+                YdbIndexTableExpression indexTable => VisitIndexTable(indexTable),
                 _ => Visit(tableExpression)
             };
 
@@ -77,6 +79,9 @@ public class YdbSqlAliasManager : SqlAliasManager
                 (VisitTableBase(leftJoinExpression.Table) as TableExpressionBase)!,
                 leftJoinExpression.JoinPredicate
             );
+
+        private Expression VisitIndexTable(YdbIndexTableExpression indexTableExpression)
+            => indexTableExpression.Update(alias: indexTableExpression.Alias);
 
         private static Expression VisitTable(TableExpressionBase tableExpression) => tableExpression;
 
