@@ -1,3 +1,4 @@
+using EntityFrameworkCore.Ydb.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -98,7 +99,16 @@ public class NorthwindCompiledQueryYdbTest
     {
         using var context = CreateContext();
         
-        var count = context.Customers.
+        var count = context.Customers
+            .FromIndex("views_index")
+            .Count(c => c.ContactName != null);
+
+        AssertSql(
+            """
+            SELECT CAST(COUNT(*) AS Int32)
+            FROM `Customers` VIEW `views_index` AS `c`
+            WHERE `c`.`ContactName` IS NOT NULL
+            """);
     }
 
     private void AssertSql(params string[] expected)
