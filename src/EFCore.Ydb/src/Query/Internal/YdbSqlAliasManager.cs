@@ -70,7 +70,7 @@ public class YdbSqlAliasManager : SqlAliasManager
                 TableExpression t => VisitTable(t),
                 SelectExpression selectExpression => VisitSelect(selectExpression),
                 LeftJoinExpression leftJoinExpression => VisitLeftJoin(leftJoinExpression),
-                YdbIndexTableExpression indexTable => VisitIndexTable(indexTable),
+                YdbViewExpression indexTable => VisitIndexTable(indexTable),
                 _ => Visit(tableExpression)
             };
 
@@ -80,9 +80,9 @@ public class YdbSqlAliasManager : SqlAliasManager
                 leftJoinExpression.JoinPredicate
             );
 
-        private Expression VisitIndexTable(YdbIndexTableExpression indexTableExpression)
-            => indexTableExpression.Update(alias: indexTableExpression.Alias);
-
+        private Expression VisitIndexTable(YdbViewExpression indexTableExpression)
+            => indexTableExpression.WithAlias(indexTableExpression.Alias);
+    
         private static Expression VisitTable(TableExpressionBase tableExpression) => tableExpression;
 
         private IReadOnlyList<ProjectionExpression> AdjustAliases(

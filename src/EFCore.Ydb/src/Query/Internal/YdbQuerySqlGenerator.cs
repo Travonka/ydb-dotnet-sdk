@@ -51,12 +51,12 @@ public class YdbQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : 
     {
         return tableExpressionBase switch
         {
-            YdbIndexTableExpression indexTableExpression => VisitIndexTable(indexTableExpression),
+            YdbViewExpression indexTableExpression => VisitIndexTable(indexTableExpression),
             _ => base.VisitTableBase(tableExpressionBase)
         };
     }
 
-    protected virtual Expression VisitIndexTable(YdbIndexTableExpression indexTableExpression)
+    protected virtual Expression VisitIndexTable(YdbViewExpression indexTableExpression)
     {
         if (SkipAliases)
         {

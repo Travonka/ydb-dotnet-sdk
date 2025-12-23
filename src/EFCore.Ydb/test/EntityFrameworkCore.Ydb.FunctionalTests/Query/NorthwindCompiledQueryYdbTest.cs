@@ -93,6 +93,14 @@ public class NorthwindCompiledQueryYdbTest
             """);
     }
 
+    [Fact]
+    public void View_Index()
+    {
+        using var context = CreateContext();
+        
+        var count = context.Customers.
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -9,26 +11,27 @@ namespace EntityFrameworkCore.Ydb.Query.Expressions.Internal;
 
 public class YdbViewExpression(string name,
     string? schema,
-    string indexName,
+    string indexName,   
     string? alias)
-    : TableExpressionBase(alias), IEquatable<YdbIndexTableExpression>
+    : TableExpressionBase(alias), IEquatable<YdbViewExpression>
 {
+    private static ConstructorInfo? _quotingConstructor;
     public string Name { get; } = name;
     public string? Schema { get; } = schema;
     public string IndexName { get; } = indexName;
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor) => 
-        new YdbIndexTableExpression(Name, Schema, IndexName, alias);
+        new YdbViewExpression(Name, Schema, IndexName, alias);
 
     public override TableExpressionBase WithAlias(string newAlias) => ReferenceEquals(newAlias, Alias) ?
-     this : new YdbIndexTableExpression(Name, Schema, IndexName, newAlias);
+     this : new YdbViewExpression(Name, Schema, IndexName, newAlias);
 
     public override bool Equals(object? obj)
-        => obj is YdbIndexTableExpression other && Equals(other);
+        => obj is YdbViewExpression other && Equals(other);
 
     [Experimental("EF9100")]
     public override Expression Quote()
         => New(
-            _quotingConstructor ??= typeof(YdbIndexTableExpression).GetConstructor(
+            _quotingConstructor ??= typeof(YdbViewExpression).GetConstructor(
                 [typeof(string), typeof(string), typeof(string), typeof(string)])!,
             Constant(Name),
             Constant(Schema, typeof(string)),
@@ -52,12 +55,12 @@ public class YdbViewExpression(string name,
 
     protected override TableExpressionBase WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations) => throw new NotImplementedException();
 
-    public bool Equals(YdbIndexTableExpression? other) => ReferenceEquals(this, other)
-           || (other is not null
-               && base.Equals(other)
-               && Name == other.Name
-               && Schema == other.Schema
-               && IndexName == other.IndexName);
+    public bool Equals(YdbViewExpression? other) => ReferenceEquals(this, other)
+                                                    || (other is not null
+                                                        && base.Equals(other)
+                                                        && Name == other.Name
+                                                        && Schema == other.Schema
+                                                        && IndexName == other.IndexName);
 
     protected override Expression VisitChildren(ExpressionVisitor visitor)
         => WithAlias(Alias);

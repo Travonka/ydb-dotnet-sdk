@@ -1,7 +1,7 @@
 using EntityFrameworkCore.Ydb.Query.Expressions.Internal;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Query;
 
-namespace EntityFrameworkCore.Ydb.Query.Internal;
+namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// Extension methods for creating YDB index table expressions.
@@ -18,12 +18,12 @@ public static class YdbIndexTableExpressionExtensions
     /// <param name="schema">Optional schema name.</param>
     /// <param name="alias">Optional table alias.</param>
     /// <returns>A new YdbIndexTableExpression.</returns>
-    public static YdbIndexTableExpression IndexTable(
+    public static YdbViewExpression ViewIndex(
         this ISqlExpressionFactory sqlExpressionFactory,
         string tableName,
         string indexName,
         string? schema = null,
         string? alias = null)
-        => new YdbIndexTableExpression(tableName, schema, indexName, alias);
+        => new YdbViewExpression(tableName, schema, indexName, alias);
 }
 
