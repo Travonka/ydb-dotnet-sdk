@@ -47,15 +47,6 @@ public class YdbQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies) : 
         return tableExpression;
     }
 
-    protected override Expression VisitTableBase(TableExpressionBase tableExpressionBase)
-    {
-        return tableExpressionBase switch
-        {
-            YdbViewExpression indexTableExpression => VisitIndexTable(indexTableExpression),
-            _ => base.VisitTableBase(tableExpressionBase)
-        };
-    }
-
     protected virtual Expression VisitIndexTable(YdbViewExpression indexTableExpression)
     {
         if (SkipAliases)
